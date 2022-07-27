@@ -27,6 +27,9 @@
 -------------------------------------------------------------
 
 # Function descriptions
+## One dimensional functional data
+- "mfdnn_1d_par.R": hyperparameter selection with training data. More details can be found in comments
+- "mfdnn_1d.R": functional deep neural netowrks. More details can be found in comments 
 ## Two dimensional functional data
 - "mfdnn_2d_par.R": hyperparameter selection with training data. More details can be found in comments
 - "mfdnn_2d.R": functional deep neural netowrks. More details can be found in comments 
