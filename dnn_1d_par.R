@@ -1,4 +1,4 @@
-###two-dimensional FDNN classification: cross validation for hyperparameters selection
+###one-dimensional FDNN classification: cross validation for hyperparameters selection
 #################################################
 ##########Fourier basis function#################
 #################################################
@@ -14,10 +14,8 @@ Fourier=function(s, M, j){
   }
 }
 ##input
-#S1: a vector of all grid points with length M1 for the 1st dimension
-#S2: a vector of all grid points with length M2 for the 2nd dimension
-#J1: candidate vector for number of truncated eigenvalues for the 1st dimension
-#J2: candidate vector for number of truncated eigenvalues for the 2nd dimension
+#S: a vector of all grid points with length M
+#J: candidate number of truncated eigenvalues
 #D.train: training data list of K, each element is a data matrix nk.train by M1*M2
 #L: candidate vector for length of the DNN
 #p: candidate vector for width of the DNN
@@ -27,8 +25,8 @@ Fourier=function(s, M, j){
 ##return
 #error: misclassification rate of the testing set
 
-mfdnn.2d.par=function(D.train, J1, J2, S1, S2, L, p, s, epoch, batch){
-  M1=length(S1); M2=length(S2); M=M1*M2; K=length(D.train)
+mfdnn.1d.par=function(D.train, J, S, L, p, s, epoch, batch){
+  M=length(S); K=length(D.train)
   
   n.train=lapply(D.train, function(x) dim(x)[1])
   ind.train=lapply(n.train, function(x) sample(1:x, floor(0.8*x)))
@@ -43,34 +41,25 @@ mfdnn.2d.par=function(D.train, J1, J2, S1, S2, L, p, s, epoch, batch){
   }
   
     
-  l1.1=length(J1); l1.2=length(J2); l2=length(L); l3=length(p); l4=length(s) 
+  l1=length(J); l2=length(L); l3=length(p); l4=length(s) 
   
-  error=array(NA, c(l1.1,l1.2,l2,l3,l4))
+  error=array(NA, c(l1,l2,l3,l4))
   
 
-for(hh in 1:l1.1){  
-  for(ii in 1:l1.2){
+  for(ii in 1:l1){
     for(jj in 1:l2){
       for(kk in 1:l3){
         for(ll in 1:l4){
-          J1.cv=J1[hh]; J2.cv=J2[ii]; L.cv=L[jj]; p.cv=p[kk]; s.cv=s[ll]
-          J.cv=J1.cv*J2.cv
+          J.cv=J[ii]; L.cv=L[jj]; p.cv=p[kk]; s.cv=s[ll]
           
           
-          phi1.cv=phi2.cv=c()
-          for(j in 1:J1.cv){
-            phi1.cv=cbind(phi1.cv, Fourier(S1,M1,j))
+          phi.cv=c()
+          for(j in 1:J.cv){
+            phi.cv=cbind(phi.cv, Fourier(S,M,j))
           }
-          for(j in 1:J2.cv){
-            phi2.cv=cbind(phi2.cv, Fourier(S2,M2,j))
-          }
-          
-          phi.cv=t(kronecker(t(phi2.cv), t(phi1.cv))) 
-          
           
           C.train.cv=lapply(D.train.cv, FUN = function(x) (x/M) %*% phi.cv)
           C.test.cv=lapply(D.test.cv, FUN = function(x) (x/M) %*% phi.cv)
-  
           
           
           x_train.cv=x_test.cv=y_train.cv=y_test.cv=c()
@@ -86,7 +75,6 @@ for(hh in 1:l1.1){
           
           y_train.cv=keras::to_categorical(matrix(y_train.cv))
           y_test.cv=keras::to_categorical(matrix(y_test.cv))
-          
           
           
           model=keras::keras_model_sequential()
@@ -119,12 +107,12 @@ for(hh in 1:l1.1){
           attributes(E.cv)=NULL
           
           
-          error[hh,ii,jj,kk,ll]=E.cv
+          error[ii,jj,kk,ll]=E.cv
          }
         }
       }
     }
-  }
+  
   
   list(error=error)
 }
