@@ -39,3 +39,5 @@
 -------------------------------------------------------------
 
 # Examples
+- "example_1d.R": simulated data for one-dimensional functional data
+- "example_2d.R": simulated data for two-dimensional functional data
